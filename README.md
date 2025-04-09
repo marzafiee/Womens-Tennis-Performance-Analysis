@@ -39,10 +39,10 @@ To run the analysis and replicate the results, follow these steps:
 git clone [https://github.com/marzafiee/Womens-Tennis-Performance-Analysis.git](https://github.com/marzafiee/Womens-Tennis-Performance-Analysis.git)
 cd tennis-performance-analysis
 
-2. Install required packages (Python example):
+3. Install required packages (Python example):
 pip install -r requirements.txt
 
-3. Run the analysis scripts:
+4. Run the analysis scripts:
 source("analysis.R")
 
 ## Installation
