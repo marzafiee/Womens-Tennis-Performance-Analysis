@@ -36,7 +36,7 @@ Key findings from the analysis include:
 To run the analysis and replicate the results, follow these steps:
 
 1. Clone the repository:
-git clone https://github.com/InezAnne-Marie/Womens-Tennis-Performance-Analysis
+git clone [https://github.com/InezAnne-Marie/Womens-Tennis-Performance-Analysis](https://github.com/marzafiee/Womens-Tennis-Performance-Analysis.git)
 cd tennis-performance-analysis
 
 2. Install required packages (Python example):
