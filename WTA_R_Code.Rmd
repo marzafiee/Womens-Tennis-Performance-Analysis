@@ -1,0 +1,307 @@
+---
+title: "WTA_R_Code"
+author: "Eyra Inez Anne-Marie Agbenu"
+date: "`r Sys.Date()`"
+output: word_document
+---
+
+# RESEARCH QUESTIONS (BASED ON THE WOMEN TENNIS ASSOCIATION DATASET)
+
+**1. Is Court Surface associated with Number of Aces per Match? (C -> Q)**
+Explanatory Variable: Surface (Categorical)
+Response Variable: w_ace and l_ace combined into Total aces per match (Quantitative)
+
+**2. Is Player Rank associated with Break-point Conversion Rate?(bcr) (Q -> Q) **
+Explanatory Variable: Winner_rank & Loser_rank (Quantitative)
+Response Variable: Breakpoint Conversion Rate (bcr) (Quantitative)
+
+**3. Is Player Handedness associated with Match Outcome? (c -> c)**
+Explanatory variable: winner_hand & loser_hand (Categorical)
+Response variable: Match Outcome (Categorical)
+
+## 1.  Load data set(s) and libraries
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(descr)
+library(stats)
+library(dplyr)
+wta_data<- read.csv("C://Users//Skippy//Documents//ASHESI//THIRD YEAR FIRST SEM//STATISTICS//PROJECT ASSIGNMENTS//PA1//wta-grand-slam-matches-2018to2022.csv")
+```
+
+## 2. Create variable subset
+```{r}
+vars <- c("Energy.efficiency", "CarbonEmission", "Transport", "Heating.Energy.Source") 
+my_data <- carbon_emission[vars]
+```
+
+## 3. Data management I: check for and recode errors and NAs, if the need be.
+```{r}
+#running freq() for the categorical variables
+freq(my_data$Energy.efficiency, main = "Energy Efficiency Categorical Variable", xlab = "Category", ylab = "Frequency", ylim = c(0,4000 ))
+my_data$Energy.efficiency[is.na(my_data$Energy.efficiency)] <- NA
+freq(my_data$Energy.efficiency, main = "Energy Efficiency Categorical Variable", xlab = "Category", ylab = "Frequency", ylim = c(0,4000 ))
+
+freq(my_data$Transport, main = "Transport Categorical Variable", xlab = "Category", ylab = "Frequency", ylim = c(0,4000 ))
+my_data$Transport[is.na(my_data$Transport)] <- NA
+freq(my_data$Transport, main = "Transport Categorical Variable", xlab = "Category", ylab = "Frequency", ylim = c(0,4000 ))
+
+freq(my_data$Heating.Energy.Source, main = "Heating.Energy.Source Categorical Variable", xlab = "Heating Energy Source", ylab = "Frequency", ylim = c(0,3000))
+my_data$Heating.Energy.Source[is.na(my_data$Heating.Energy.Source)] <- NA
+freq(my_data$Heating.Energy.Source, main = "Heating.Energy.Source Categorical Variable", xlab = "Heating Energy Source", ylab = "Frequency", ylim = c(0,3000))
+
+#running hist() for my only quantitative variable, CarbonEmission
+hist(my_data$CarbonEmission, main = "Histogram of Carbon Emission",xlab = "Carbon Emissions (metric tons of C02e)", ylim = c(0, 3000))
+my_data$CarbonEmission[is.na(my_data$CarbonEmission)] <- NA
+hist(my_data$CarbonEmission, main = "Histogram of Carbon Emission",xlab = "Carbon Emissions (metric tons of C02e)", ylim = c(0, 3000))
+```
+
+## 4. Data management II: further subset and create secondary variable, if the need be.
+```{r}
+#for transport
+means_walk_bicycle <- subset(my_data, Transport == "walk/bicycle")
+means_private <- subset(my_data, Transport == "private")
+means_public <- subset(my_data, Transport == "public")
+```
+
+## 5. Descriptive statistics (sample means, standard deviations, proportions) and univariate displays
+```{r}
+# Regarding Descriptive Statistics
+# For C -> Q
+by(my_data$CarbonEmission, my_data$Energy.efficiency, mean, na.rm = TRUE)
+by(my_data$CarbonEmission, my_data$Energy.efficiency, sd, na.rm = TRUE)
+by(my_data$CarbonEmission, my_data$Heating.Energy.Source, mean, na.rm = TRUE)
+by(my_data$CarbonEmission, my_data$Heating.Energy.Source, sd, na.rm = TRUE) 
+
+by(my_data$CarbonEmission, my_data$Energy.efficiency, length)
+by(my_data$CarbonEmission, my_data$Heating.Energy.Source, length)
+
+# For C -> C
+my_tab1e <- table (my_data$Transport, my_data$Energy.efficiency); my_tab1e
+tabl_colProp <- round(100 * prop.table(my_tab1e, 2), 3); tabl_colProp # column proportions indicated by the 2
+
+#UNIVARIATE GRAPHS FOR CATEGORICAL VARIABLES
+freq (as.ordered(my_data$Energy.efficiency), main = "Energy Efficiency Categorical Univariate Graph", names = c("No", "Sometimes", "Yes"), y.axis = "percent", ylab = "Percent", xlab = "Category",col = "pink", ylim = c(0,60))
+
+freq (as.ordered(my_data$Heating.Energy.Source), main = "Heating.Energy.Source \n Categorical Univariate Graph", names = c("Coal", "Electricity", "Wood", "Natural Gas"), y.axis = "percent", ylab = "Percent", xlab = "Category",col = "lightblue", ylim = c(0,30))
+
+freq (as.ordered(my_data$Transport), main = "Transport Categorical Univariate Graph", names = c("Private", "Public", "Walk/Bicycle"), y.axis = "percent", ylab = "Percent", xlab = "Category",col = "orange", ylim = c(0,40))
+
+#QUANTITATIVE VARIABLES UNIVARIATE GRAPHS
+summary(my_data$CarbonEmission)
+mean(my_data$CarbonEmission, na.rm = TRUE)
+sd(my_data$CarbonEmission, na.rm = TRUE)
+
+hist(my_data$CarbonEmission, main ="Carbon Emission Quantitative \n Univariate Graph", xlab = "CarbonEmission Values(metric tons of CO2e)", ylab = "Frequency", col = "lightyellow", ylim = c(0, 2500))
+
+```
+
+## 6. Bivariate tables and graphs
+```{r}
+# For C -> Q
+plot(CarbonEmission ~ factor(Energy.efficiency), data = my_data, main ="Carbon Emissions Dist. \n for categories of Energy Efficiency", xlab = "Energy Efficiency Categories", ylab = "Carbon Emission(metric tons of CO2e)")
+
+plot(CarbonEmission ~ factor(Heating.Energy.Source), data = my_data, main ="Carbon Emissions Dist. \n for different Sources of Heat Energy", xlab = "Heating Energy Source (Residential)", ylab = "Carbon Emission(metric tons of CO2e)")
+   
+# For C -> C
+# response ~ explanatory;
+# Transport(res) ~ Energy efficiency (expl)
+# transport: walk/bicycle, private, public
+
+walk_bicycle_table <- table(means_walk_bicycle$Energy.efficiency); walk_bicycle_table
+prop_walk_bicycle  <- prop.table(walk_bicycle_table)
+barplot(prop_walk_bicycle, main = "Respondent Proportions for \n Walk/Bicycle", xlab = "Energy Efficiency", ylab = "Proportions", ylim =c(0.00,0.40))
+
+priv_table <- table(means_private$Energy.efficiency); priv_table
+prop_private  <- prop.table(priv_table)
+barplot(prop_private, main = "Respondent Proportions for \n Private Transport", xlab = "Energy Efficiency", ylab = "Proportions", ylim =c(0.00,0.40))
+
+public_table <- table(means_public$Energy.efficiency); public_table
+prop_public  <- prop.table(public_table)
+barplot(prop_public, main = "Respondent Proportions for \n Public Transport", xlab = "Energy Efficiency", ylab = "Proportions", ylim =c(0.00,0.40))
+```
+
+# SUMMARY:
+  The goal to determine whether energy efficiency influences the level of carbon emissions produced, from the boxplot, "Carbon Emissions Dist. for categories of Energy Efficiency", shows that it does have some influence on carbon emission output, especially for respondents who claimed to be energy efficient but overall, there is no stark difference between the different categories of responses to energy efficiency and the influence on carbon emissions produced. Thus, the relationship may be a weak one. Regarding whether various heating energy sources influences individuals' carbon emission, from the box plot, I observed that individuals who used coal had a higher output of carbon emissions, with electricity being the lowest and both natural gas and wood being around the same level and relatively in the middle. 
+  So heating energy does have an influence on carbon emissions depending on how natural they are (coal, wood, natural gas) as electricity outputted the least amount of carbon. Thus, I'm inclined to hypothesize that the more raw/natural the heating energy source, the more carbon emissions outputted. For my last association of whether energy efficiency influences individuals' transportation preferences, I observed that regardless of the respondents' claims of whether they are energy efficient, somewhat energy efficient or not at all, the influence of this choice had roughly the same proportions for all the means of transport - walking/cycling, public and private - suggesting to me that there is a very weak relationship between energy efficiency and transport variables. Tracing this information back to my research uestions, I can infer that most people are actually willing to make changed in their lifestyles regarding transportation for example to help reduce the effect of climate change. However, this same proportion is roughly the same as that of people who have a nonchalant attitude or are not interested to contribute to the efforts others are making.
+  
+  
+## 7. Bivariate Analysis
+### Is Energy Efficiency Associated with Carbon Emissions?
+
+**Step 1: State the Claim:**
+Null hypothesis: Mean of energy efficiency = Mean of carbon emissions
+Alternative hypothesis: The means are not equal
+
+**Step 2: Collect and Summarize the Sample:**
+
+```{r}
+tapply(my_data$CarbonEmission, my_data$Energy.efficiency, mean, na.rm = TRUE)
+tapply(my_data$CarbonEmission, my_data$Energy.efficiency, sd, na.rm = TRUE)
+freq(my_data$Energy.efficiency)
+```
+
+The samples are large, allowing for testing regardless of normal distribution. We have a categorical explanatory variable (energy efficiency) and a quantitative response variable (carbon emissions), suggesting ANOVA.
+
+**Step 3: Assess the Evidence:**
+
+```{r}
+anova_result <- aov(CarbonEmission ~ Energy.efficiency, data = my_data)
+summary(anova_result)
+```
+
+Test Statistic: 1577
+Degrees of Freedom: 2
+P-value: <2e-16
+
+As per ANOVA summary, the p-value (< 0.05) indicates enough evidence to conclude a relationship between energy efficiency and carbon emissions, rejecting the null hypothesis.
+
+**Step 4: Making a Conclusion:**
+
+Given the p-value significance, we reject the null hypothesis. There is evidence to suggest a relationship between energy efficiency and carbon emissions.
+
+```{r}
+# Post-hoc test
+
+posthoc <- TukeyHSD(anova_result);posthoc
+```
+
+For the comparison (public vs private), the confidence interval does not include 0 (95% CI [-1066.4006, -963.77682]) and the p-value is less than 0.05 (p < 0.001). This indicates that the mean of carbon emissions for public transport is significantly different from the mean of private transport.
+
+For the comparison (walk/bicycle vs private), the confidence interval does not include 0 (95% CI [-1151.9522, -1050.32673]) and the p-value is less than 0.05 (p < 0.001). This suggests that the mean of carbon emissions for walk/bicycle transport is significantly different from the mean of private transport.
+
+For the comparison (walk/bicycle vs public), the confidence interval does not include 0 (95% CI [-136.8043, -35.29719]) and the p-value is less than 0.05 (p = 0.0002099). This indicates that the mean of carbon emissions for walk/bicycle transport is significantly different from the mean of public transport.
+
+
+### Is Energy Efficiency Associated with Transport?
+
+**Step 1: State the Claim:**
+
+Null hypothesis: Frequency of energy efficiency = Frequency of transport
+Alternative hypothesis: The frequencies are not equal
+
+**Step 2: Collect and Summarize the Sample:**
+
+```{r}
+test_assoc <- table(my_data$Energy.efficiency, my_data$Transport)
+test_prop <- round(100 * prop.table(test_assoc,2),1)
+freq(my_data$Transport)
+```
+
+Given both categorical variables, a chi-square test is appropriate.
+
+**Step 3: Assess the Evidence:**
+
+```{r}
+contingency_table <- table(my_data$Energy.efficiency, my_data$Transport)
+chi_sq_result <- chisq.test(contingency_table);chi_sq_result
+```
+
+Test Statistic: 1577
+Degrees of Freedom: 2
+P-value: <2e-16
+
+The p-value (< 0.05) suggests enough evidence to reject the null hypothesis, indicating a relationship between energy efficiency and transport.
+
+### Is Heating Energy Source Associated with Carbon Emissions?
+
+**Step 1: State the Claim:**
+
+Null hypothesis: Mean of heating energy source = Mean of carbon emissions
+Alternative hypothesis: The means are not equal
+
+**Step 2: Collect and Summarize the Sample:**
+
+```{r}
+tapply(my_data$CarbonEmission, my_data$Heating.Energy.Source, mean, na.rm = TRUE)
+tapply(my_data$CarbonEmission, my_data$Heating.Energy.Source, sd, na.rm = TRUE)
+freq(my_data$Heating.Energy.Source)
+```
+
+Considering a categorical explanatory variable (heating energy source) and a quantitative response variable (carbon emissions), we proceed with ANOVA.
+
+**Step 3: Assess the Evidence:**
+
+```{r}
+anova_result_heating <- aov(CarbonEmission ~ Heating.Energy.Source, data = my_data)
+summary(anova_result_heating)
+```
+
+Test Statistic: 88
+Degrees of Freedom: 3
+P-value: <2e-16
+
+The ANOVA summary indicates a significant relationship between heating energy source and carbon emissions (p < 0.05), rejecting the null hypothesis.
+
+**Step 4: Making a Conclusion:**
+
+Given the p-value significance, we reject the null hypothesis, suggesting a relationship between heating energy source and carbon emissions.
+
+```{r}
+# Post-hoc test
+
+posthoc_heating <- TukeyHSD(anova_result_heating);posthoc_heating
+```
+
+Post-hoc Test Results:
+For the comparison (electricity vs coal), the confidence interval does not include 0 (95% CI [-528.15338, -383.2077]) and the p-value is less than 0.05 (p < 0.001). This indicates that the mean of carbon emissions for electricity heating is significantly different from the mean of coal heating.
+
+For the comparison (natural gas vs coal), the confidence interval does not include 0 (95% CI [-320.06436, -173.8076]) and the p-value is less than 0.05 (p < 0.001). This suggests that the mean of carbon emissions for natural gas heating is significantly different from the mean of coal heating.
+
+For the comparison (wood vs coal), the confidence interval does not include 0 (95% CI [-271.36547, -125.1237]) and the p-value is less than 0.05 (p < 0.001). This indicates that the mean of carbon emissions for wood heating is significantly different from the mean of coal heating.
+
+For the comparison (natural gas vs electricity), the confidence interval does not include 0 (95% CI [135.82168, 281.6675]) and the p-value is less than 0.05 (p < 0.001). This indicates that the mean of carbon emissions for natural gas heating is significantly different from the mean of electricity heating.
+
+For the comparison (wood vs electricity), the confidence interval does not include 0 (95% CI [184.52060, 330.3513]) and the p-value is less than 0.05 (p < 0.001). This suggests that the mean of carbon emissions for wood heating is significantly different from the mean of electricity heating.
+
+For the comparison (wood vs natural gas), the confidence interval includes 0 (95% CI [-24.87562, 122.2584]) and the p-value is greater than 0.05 (p = 0.3233329). This indicates that there is no significant difference in the mean of carbon emissions between wood heating and natural gas heating.
+
+
+# Summary:
+
+In exploring the relationship between heating energy sources and carbon emissions, we found significant evidence suggesting an association between the two variables. ANOVA tests revealed differences in carbon emissions based on the type of heating energy source used. Post-hoc tests provided additional insights into specific differences between heating energy source categories.
+
+This underscores the importance of considering the environmental impact of residential heating energy choices in carbon emissions management strategies. Further research could delve into the mechanisms driving these associations and explore interventions to promote more sustainable heating energy practices.
+
+
+## 8. Moderation
+
+```{r, fig.width= 8}
+
+mod_table <- ftable(by(my_data$CarbonEmission, list(my_data$Energy.efficiency, my_data$Transport), mean, na.rm = TRUE));mod_table
+
+plot.new()
+# Include plot for moderation analysis
+label2 <- c("No", "Sometimes", "Yes")
+colours <- c("lightblue","pink", "lightyellow")
+barplot(mod_table, beside = TRUE, 
+        main = "Mean Carbon Emissions by different types of \n Transport based on Energy Efficiency", 
+        names.arg = c("Private \n", "Public \n", "Walk/Bicycle \n"), 
+        ylab = "Mean Carbon Emissions", xlab = "Transportation", 
+        col = colours, ylim =c(0,5000))
+
+legend("topright", inset = c(0, 0), title = "Legend", c(label2),
+        lwd = 2, col = colours, x.intersp = 1, y.intersp = 1)
+
+```
+
+# Summary:
+**Is Energy Efficiency Associated with Carbon Emissions?**
+
+The ANOVA results suggest a significant relationship between energy efficiency and carbon emissions (p < 0.05). Post-hoc tests reveal significant differences in mean carbon emissions between different levels of energy efficiency, indicating potential variations in carbon emissions based on energy-efficient practices.
+
+**Is Energy Efficiency Associated with Transport?**
+
+The chi-square test indicates a significant relationship between energy efficiency and transportation type (p < 0.05). This suggests that energy efficiency may influence individuals' transportation preferences, with implications for carbon emissions associated with different transport modes.
+
+**Is Heating Energy Source Associated with Carbon Emissions?**
+
+The ANOVA results suggest a significant relationship between heating energy source and carbon emissions (p < 0.05). Post-hoc tests reveal significant differences in mean carbon emissions between different heating energy sources, highlighting the potential impact of energy source choice on carbon emissions levels.
+
+**Moderation**
+
+The plot shows the mean carbon emissions for different heating energy sources, providing insights into potential differences among them and their moderation effects on carbon emissions.
+
+**Overall Conclusion**
+
+There is evidence to suggest that both energy efficiency, transportation type, and heating energy source are associated with carbon emissions. Policies aimed at reducing carbon emissions should consider promoting energy-efficient practices, sustainable transportation modes, and cleaner heating energy sources. Limitations such as sample representatives and uncontrolled variables should be acknowledged. Further research could explore the long-term effects of different energy practices on carbon emissions and develop targeted interventions for emission reduction.
