@@ -1,0 +1,11 @@
+# R Requirements for WTA Tennis Analysis
+
+# Core packages
+readr        # For reading CSV files
+descr        # For descriptive statistics and frequency tables
+stats        # For statistical tests
+dplyr        # For data manipulation
+knitr        # For R Markdown document generation
+
+# Additional packages likely needed based on code analysis
+ggplot2      # For enhanced plotting (implied by complex visualizations)
